@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,6 +35,9 @@ import coil.compose.rememberAsyncImagePainter
 import com.problemsolver.core.data.model.User
 import com.problemsolver.core.data.model.userEmpty
 import com.problemsolver.core.ui.LoadingAnimation
+import com.problemsolver.core.utils.DATE_MONTH_YEAR_FORMAT
+import com.problemsolver.core.utils.ISO_FORMAT
+import com.problemsolver.core.utils.formatDate
 
 @Composable
 fun UserMain(
@@ -59,19 +63,18 @@ fun UserMain(
 fun UserListScreen(navController: NavController, userViewModel: UserViewModel) {
     val state by userViewModel.users.collectAsState()
 
-    LazyColumn {
-        item {
-            when (state) {
-                is UserUiState.Loading, UserUiState.Empty,
-                is UserUiState.Error -> {
-                    handleViewState(state)
-                }
-                is UserUiState.Success -> {
-                    val users = (state as UserUiState.Success).data
-                    users.forEach { user ->
-                        UserItem(user) {
-                            navController.navigate("user_detail/${user.id}")
-                        }
+    when (state) {
+        is UserUiState.Loading, UserUiState.Empty,
+        is UserUiState.Error -> {
+            handleViewState(state)
+        }
+
+        is UserUiState.Success -> {
+            LazyColumn {
+                val users = (state as UserUiState.Success).data
+                items(users) {
+                    UserItem(it) {
+                        navController.navigate("user_detail/${it.id}")
                     }
                 }
             }
@@ -90,12 +93,15 @@ fun handleViewState(state: UserUiState) {
             is UserUiState.Loading -> {
                 LoadingAnimation()
             }
+
             is UserUiState.Error -> {
                 Text("Error")
             }
+
             is UserUiState.Empty -> {
                 Text("Empty")
             }
+
             else -> {}
         }
     }
@@ -120,6 +126,7 @@ fun UserItem(user: User, onClick: () -> Unit) {
         Column {
             Text(text = user.name, fontWeight = FontWeight.Bold)
             Text(text = "${user.city}, ${user.country}")
+            Text(text = user.createdAt.formatDate(ISO_FORMAT, DATE_MONTH_YEAR_FORMAT))
         }
     }
 }
