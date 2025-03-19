@@ -1,7 +1,7 @@
 # MyProfile App
 
 <p align="left">
-<img src="/assets/movie.gif" width="32%"/>
+<img src="/assets/myprofile.gif" width="32%"/>
 </p>
 
 ## Overview
